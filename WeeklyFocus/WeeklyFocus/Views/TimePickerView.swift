@@ -41,7 +41,7 @@ struct TimePickerView: View {
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                 }
-                .padding(.top, 20)
+                .padding(.top, 40)
                 
                 // 时间选择器
                 VStack(spacing: 15) {

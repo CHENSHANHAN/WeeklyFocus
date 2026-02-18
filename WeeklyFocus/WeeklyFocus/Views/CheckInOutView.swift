@@ -44,59 +44,71 @@ struct CheckInOutView: View {
                 // 今日打卡状态
                 if let record = todayRecord {
                     VStack(spacing: 20) {
-                        // 上班打卡状态
-                        HStack {
-                            Image(systemName: record.hasClockedIn ? "checkmark.circle.fill" : "circle")
-                                .foregroundColor(record.hasClockedIn ? .green : .gray)
-                                .font(.title)
-                            
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text("上班打卡")
-                                    .font(.headline)
+                        // 上班打卡状态（可点击选择）
+                        Button {
+                            timePickerMode = .clockIn
+                        } label: {
+                            HStack {
+                                Image(systemName: record.hasClockedIn ? "checkmark.circle.fill" : "circle")
+                                    .foregroundColor(record.hasClockedIn ? .green : .gray)
+                                    .font(.title)
                                 
-                                if record.hasClockedIn {
-                                    Text("打卡时间: \(record.clockInTimeDisplay)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                } else {
-                                    Text("未打卡")
-                                        .font(.subheadline)
-                                        .foregroundColor(.orange)
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text("上班打卡")
+                                        .font(.headline)
+                                    
+                                    if record.hasClockedIn {
+                                        Text("打卡时间: \(record.clockInTimeDisplay)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    } else {
+                                        Text("未打卡")
+                                            .font(.subheadline)
+                                            .foregroundColor(.orange)
+                                    }
                                 }
+                                
+                                Spacer()
                             }
-                            
-                            Spacer()
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(timePickerMode == .clockIn ? Color.green.opacity(0.15) : Color.gray.opacity(0.1))
+                            .cornerRadius(12)
                         }
-                        .padding()
-                        .background(Color.gray.opacity(0.1))
-                        .cornerRadius(12)
+                        .buttonStyle(.plain)
                         
-                        // 下班打卡状态
-                        HStack {
-                            Image(systemName: record.hasClockedOut ? "checkmark.circle.fill" : "circle")
-                                .foregroundColor(record.hasClockedOut ? .green : .gray)
-                                .font(.title)
-                            
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text("下班打卡")
-                                    .font(.headline)
+                        // 下班打卡状态（可点击选择）
+                        Button {
+                            timePickerMode = .clockOut
+                        } label: {
+                            HStack {
+                                Image(systemName: record.hasClockedOut ? "checkmark.circle.fill" : "circle")
+                                    .foregroundColor(record.hasClockedOut ? .green : .gray)
+                                    .font(.title)
                                 
-                                if record.hasClockedOut {
-                                    Text("打卡时间: \(record.clockOutTimeDisplay)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                } else {
-                                    Text("未打卡")
-                                        .font(.subheadline)
-                                        .foregroundColor(.orange)
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text("下班打卡")
+                                        .font(.headline)
+                                    
+                                    if record.hasClockedOut {
+                                        Text("打卡时间: \(record.clockOutTimeDisplay)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    } else {
+                                        Text("未打卡")
+                                            .font(.subheadline)
+                                            .foregroundColor(.orange)
+                                    }
                                 }
+                                
+                                Spacer()
                             }
-                            
-                            Spacer()
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(timePickerMode == .clockOut ? Color.red.opacity(0.15) : Color.gray.opacity(0.1))
+                            .cornerRadius(12)
                         }
-                        .padding()
-                        .background(Color.gray.opacity(0.1))
-                        .cornerRadius(12)
+                        .buttonStyle(.plain)
                         
                         // 工作时长显示
                         if record.workDurationMinutes > 0 {
@@ -118,78 +130,7 @@ struct CheckInOutView: View {
                     
                     // 打卡按钮
                     VStack(spacing: 15) {
-                        if !record.hasClockedIn {
-                            // 上班打卡按钮组
-                            VStack(spacing: 10) {
-                                Button(action: {
-                                    clockIn()
-                                }) {
-                                    HStack {
-                                        Image(systemName: "arrow.right.circle.fill")
-                                        Text("上班打卡")
-                                    }
-                                    .font(.headline)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.green)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(12)
-                                }
-                                
-                                Button(action: {
-                                    selectedTime = Date()
-                                    timePickerMode = .clockIn
-                                    showTimePicker = true
-                                }) {
-                                    HStack {
-                                        Image(systemName: "clock.arrow.2.circlepath")
-                                        Text("选择上班时间")
-                                    }
-                                    .font(.subheadline)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.green.opacity(0.2))
-                                    .foregroundColor(.green)
-                                    .cornerRadius(12)
-                                }
-                            }
-                        } else if !record.hasClockedOut {
-                            // 下班打卡按钮组
-                            VStack(spacing: 10) {
-                                Button(action: {
-                                    clockOut()
-                                }) {
-                                    HStack {
-                                        Image(systemName: "arrow.left.circle.fill")
-                                        Text("下班打卡")
-                                    }
-                                    .font(.headline)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.red)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(12)
-                                }
-                                
-                                Button(action: {
-                                    selectedTime = Date()
-                                    timePickerMode = .clockOut
-                                    showTimePicker = true
-                                }) {
-                                    HStack {
-                                        Image(systemName: "clock.arrow.2.circlepath")
-                                        Text("选择下班时间")
-                                    }
-                                    .font(.subheadline)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.red.opacity(0.2))
-                                    .foregroundColor(.red)
-                                    .cornerRadius(12)
-                                }
-                            }
-                        } else {
-                            // 已完整打卡，显示重新打卡选项
+                        if record.hasClockedIn && record.hasClockedOut {
                             Button(action: {
                                 resetClockInOut()
                             }) {
@@ -203,6 +144,80 @@ struct CheckInOutView: View {
                                 .background(Color.orange)
                                 .foregroundColor(.white)
                                 .cornerRadius(12)
+                            }
+                        } else {
+                            if timePickerMode == .clockIn {
+                                VStack(spacing: 10) {
+                                    Button(action: {
+                                        clockIn()
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "arrow.right.circle.fill")
+                                            Text("上班打卡")
+                                        }
+                                        .font(.headline)
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(record.hasClockedIn ? Color.gray : Color.green)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(12)
+                                    }
+                                    .disabled(record.hasClockedIn)
+                                    
+                                    Button(action: {
+                                        selectedTime = Date()
+                                        timePickerMode = .clockIn
+                                        showTimePicker = true
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "clock.arrow.2.circlepath")
+                                            Text("选择上班时间")
+                                        }
+                                        .font(.subheadline)
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(record.hasClockedIn ? Color.gray.opacity(0.2) : Color.green.opacity(0.2))
+                                        .foregroundColor(record.hasClockedIn ? .gray : .green)
+                                        .cornerRadius(12)
+                                    }
+                                    .disabled(record.hasClockedIn)
+                                }
+                            } else {
+                                VStack(spacing: 10) {
+                                    Button(action: {
+                                        clockOut()
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "arrow.left.circle.fill")
+                                            Text("下班打卡")
+                                        }
+                                        .font(.headline)
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background((!record.hasClockedIn || record.hasClockedOut) ? Color.gray : Color.red)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(12)
+                                    }
+                                    .disabled(!record.hasClockedIn || record.hasClockedOut)
+                                    
+                                    Button(action: {
+                                        selectedTime = Date()
+                                        timePickerMode = .clockOut
+                                        showTimePicker = true
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "clock.arrow.2.circlepath")
+                                            Text("选择下班时间")
+                                        }
+                                        .font(.subheadline)
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background((!record.hasClockedIn || record.hasClockedOut) ? Color.gray.opacity(0.2) : Color.red.opacity(0.2))
+                                        .foregroundColor((!record.hasClockedIn || record.hasClockedOut) ? .gray : .red)
+                                        .cornerRadius(12)
+                                    }
+                                    .disabled(!record.hasClockedIn || record.hasClockedOut)
+                                }
                             }
                         }
                     }
@@ -286,6 +301,11 @@ struct CheckInOutView: View {
             if let record = await dataManager.loadTodaysRecord(for: goal.id) {
                 await MainActor.run {
                     todayRecord = record
+                    if !record.hasClockedIn {
+                        timePickerMode = .clockIn
+                    } else if !record.hasClockedOut {
+                        timePickerMode = .clockOut
+                    }
                 }
             }
         }

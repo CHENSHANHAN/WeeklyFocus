@@ -10,7 +10,6 @@ import SwiftUI
 struct DashboardView: View {
     @EnvironmentObject var dataManager: DataManager
     @State private var showingAddRecord = false
-    @State private var showingTimer = false
     @State private var showingCheckInOut = false
     
     var body: some View {
@@ -51,9 +50,6 @@ struct DashboardView: View {
             }
             .sheet(isPresented: $showingAddRecord) {
                 AddRecordView()
-            }
-            .sheet(isPresented: $showingTimer) {
-                TimerView()
             }
             .sheet(isPresented: $showingCheckInOut) {
                 if let goal = dataManager.currentGoal {
@@ -252,37 +248,6 @@ struct DashboardView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             VStack(spacing: 12) {
-                HStack(spacing: 12) {
-                    Button(action: { showingTimer = true }) {
-                        VStack(spacing: 8) {
-                            Image(systemName: "timer")
-                                .font(.title2)
-                            Text("开始计时")
-                                .font(.caption)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                    }
-                    
-                    Button(action: { showingAddRecord = true }) {
-                        VStack(spacing: 8) {
-                            Image(systemName: "plus.circle")
-                                .font(.title2)
-                            Text("补录时间")
-                                .font(.caption)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                    }
-                }
-                
-                // 上下班打卡按钮
                 Button(action: { showingCheckInOut = true }) {
                     HStack(spacing: 8) {
                         Image(systemName: "briefcase.fill")
@@ -300,6 +265,27 @@ struct DashboardView: View {
                     }
                     .padding()
                     .background(Color.orange)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                }
+                
+                Button(action: { showingAddRecord = true }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "plus.circle")
+                            .font(.title2)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("补录时间")
+                                .font(.headline)
+                            Text("手动添加一条时间记录")
+                                .font(.caption2)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                        Spacer()
+                        Image(systemName: "plus.app.fill")
+                            .font(.title2)
+                    }
+                    .padding()
+                    .background(Color.green)
                     .foregroundColor(.white)
                     .cornerRadius(10)
                 }

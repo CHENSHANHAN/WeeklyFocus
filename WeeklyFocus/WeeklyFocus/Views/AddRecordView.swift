@@ -11,42 +11,21 @@ struct AddRecordView: View {
     @EnvironmentObject var dataManager: DataManager
     @Environment(\.dismiss) private var dismiss
     
-    @State private var hours = 0
-    @State private var minutes = 0
     @State private var selectedDate = Date()
+    @State private var startTime = Date()
+    @State private var endTime = Date()
     @State private var notes = ""
     
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("时长设置")) {
-                    HStack {
-                        Text("小时")
-                        Spacer()
-                        Picker("小时", selection: $hours) {
-                            ForEach(0..<24, id: \.self) { hour in
-                                Text("\(hour)").tag(hour)
-                            }
-                        }
-                        .pickerStyle(MenuPickerStyle())
-                        .frame(width: 80)
-                    }
-                    
-                    HStack {
-                        Text("分钟")
-                        Spacer()
-                        Picker("分钟", selection: $minutes) {
-                            ForEach(0..<60, id: \.self) { minute in
-                                Text("\(minute)").tag(minute)
-                            }
-                        }
-                        .pickerStyle(MenuPickerStyle())
-                        .frame(width: 80)
-                    }
-                }
-                
                 Section(header: Text("日期")) {
                     DatePicker("选择日期", selection: $selectedDate, displayedComponents: .date)
+                }
+                
+                Section(header: Text("时间")) {
+                    DatePicker("上班时间", selection: $startTime, displayedComponents: .hourAndMinute)
+                    DatePicker("下班时间", selection: $endTime, displayedComponents: .hourAndMinute)
                 }
                 
                 Section(header: Text("备注")) {
@@ -58,7 +37,7 @@ struct AddRecordView: View {
                     Button("添加记录") {
                         addRecord()
                     }
-                    .disabled(hours == 0 && minutes == 0)
+                    .disabled(!isValidTimeRange)
                     .frame(maxWidth: .infinity)
                 }
             }
@@ -75,11 +54,36 @@ struct AddRecordView: View {
     }
     
     private func addRecord() {
-        let totalMinutes = hours * 60 + minutes
-        guard totalMinutes > 0 else { return }
+        guard let finalStart = combinedDateTime(for: selectedDate, time: startTime),
+              let finalEnd = combinedDateTime(for: selectedDate, time: endTime),
+              finalEnd > finalStart else { return }
         
-        dataManager.addRecord(durationMinutes: totalMinutes, notes: notes.isEmpty ? nil : notes)
+        dataManager.addTimedRecord(
+            startTime: finalStart,
+            endTime: finalEnd,
+            notes: notes.isEmpty ? nil : notes
+        )
         dismiss()
+    }
+    
+    private var isValidTimeRange: Bool {
+        startTime < endTime
+    }
+    
+    private func combinedDateTime(for date: Date, time: Date) -> Date? {
+        let calendar = Calendar.current
+        let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+        let timeComponents = calendar.dateComponents([.hour, .minute, .second], from: time)
+        
+        var components = DateComponents()
+        components.year = dateComponents.year
+        components.month = dateComponents.month
+        components.day = dateComponents.day
+        components.hour = timeComponents.hour
+        components.minute = timeComponents.minute
+        components.second = timeComponents.second ?? 0
+        
+        return calendar.date(from: components)
     }
 }
 
